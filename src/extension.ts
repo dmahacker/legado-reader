@@ -1,26 +1,66 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
-import * as vscode from 'vscode';
+import { log } from './log';
+import { LegadoError } from './error/base';
+import { setStorage } from './storage';
+import { ExtensionContext, commands, window } from 'vscode';
+import { login, logout } from './controller/user';
+import { BookshelfProvider } from './provider/Bookshelf';
+import { ForbiddenError } from './error/forbidden';
+
+const handleRejection: NodeJS.UnhandledRejectionListener = (reason, promise) => {
+	if (!(reason instanceof LegadoError)) {
+		return;
+	}
+	const handleError = (err: any) => {
+		if (err instanceof ForbiddenError) {
+			// 提示未登录
+			commands.executeCommand('setContext', 'legadoReader.isLogin', false);
+			return true;
+		}
+		return false;
+	};
+	promise.catch((err) => {
+		if (handleError(err)) {
+			return;
+		}
+		window.showErrorMessage(err.message);
+		log.append('Unhandled Rejection at:' + (err.stack || err) + '\n');
+	});
+};
+
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
-export function activate(context: vscode.ExtensionContext) {
+export function activate(context: ExtensionContext) {
+	log.appendLine('Legado Reader is now active');
+	process.on('unhandledRejection', handleRejection);
+	setStorage(context.globalState);
 
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "legado-reader" is now active!');
+	commands.executeCommand('setContext', 'legadoReader.isLogin', true);
 
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with registerCommand
-	// The commandId parameter must match the command field in package.json
-	let disposable = vscode.commands.registerCommand('legado-reader.helloWorld', () => {
-		// The code you place here will be executed every time your command is executed
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World from legado-reader!');
-	});
+	// 注册Provider
+	const bookshelfProvider = new BookshelfProvider();
+	window.registerTreeDataProvider('legado-bookshelf', bookshelfProvider);
 
-	context.subscriptions.push(disposable);
+	// 注册命令
+	context.subscriptions.push(
+		commands.registerCommand('legadoReader.login', () => {
+			login().then(() => {
+				commands.executeCommand('setContext', 'legadoReader.isLogin', true);
+				bookshelfProvider.refresh();
+			});
+		}),
+		commands.registerCommand('legadoReader.logout', () => {
+			logout().then(() => {
+				commands.executeCommand('setContext', 'legadoReader.isLogin', false);
+			});
+		}),
+	);
 }
 
 // This method is called when your extension is deactivated
-export function deactivate() {}
+export function deactivate() {
+	process.removeListener('unhandledRejection', handleRejection);
+	log.dispose();
+}

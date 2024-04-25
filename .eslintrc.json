@@ -16,11 +16,11 @@
                 "format": [ "camelCase", "PascalCase" ]
             }
         ],
-        "@typescript-eslint/semi": "warn",
+        "@typescript-eslint/semi": "error",
         "curly": "warn",
         "eqeqeq": "warn",
         "no-throw-literal": "warn",
-        "semi": "off"
+        "semi": "error"
     },
     "ignorePatterns": [
         "out",

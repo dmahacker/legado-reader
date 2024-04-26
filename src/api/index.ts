@@ -1,4 +1,4 @@
-import axios, { AxiosResponse } from 'axios';
+import axios, { AxiosError, AxiosResponse } from 'axios';
 import * as vscode from 'vscode';
 
 // API Import
@@ -9,6 +9,7 @@ import { ForbiddenError } from '../error/forbidden';
 import { LegadoError } from '../error/base';
 import { getData, hasData } from '../storage';
 import { commands } from 'vscode';
+import { log } from '../log';
 
 let getServer = () => vscode.workspace.getConfiguration().get('legadoReader.server') as string;
 
@@ -52,8 +53,14 @@ client.interceptors.response.use(
 			commands.executeCommand('setContext', 'legadoReader.isLogin', false);
             throw new ForbiddenError(response.data.errorMsg);
         }
+        log.appendLine("Request failed: " + response.data.errorMsg + "[" + response.data.data + "]");
         throw new LegadoError(response.data.errorMsg);
-    }
+    },
+    (error: AxiosError) => {
+        commands.executeCommand('setContext', 'legadoReader.isLogin', false);
+        log.appendLine("Request error: " + error.message + "[" + error.code + "]");
+        throw new LegadoError('连接服务器失败，请检查填写地址是否正确');
+    },
 );
 
 export default {

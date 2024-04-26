@@ -24,6 +24,24 @@
         "command": "legadoReader.logout",
         "title": "退出登录",
         "icon": "$(log-out)"
+      },
+      {
+        "command": "legadoReader.next",
+        "title": "下一页"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "legadoReader.next",
+        "key": "ctrl+l",
+        "mac": "cmd+l",
+        "when": "legadoReader.isLogin"
+      },
+      {
+        "command": "legadoReader.prev",
+        "key": "ctrl+h",
+        "mac": "cmd+h",
+        "when": "legadoReader.isLogin"
       }
     ],
     "configuration": {
@@ -80,7 +98,7 @@
     "viewsWelcome": [
         {
           "view": "legado-login",
-          "contents": "请点击登录以登入服务端\n[登录](command:legadoReader.login)"
+          "contents": "点击连接直连服务端\n[连接](command:legadoReader.connect)\n点击登录以用户名和密码登录服务端\n[登录](command:legadoReader.login)"
         }
     ]
   },

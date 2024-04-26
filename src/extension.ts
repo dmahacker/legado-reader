@@ -6,26 +6,16 @@ import { setStorage } from './storage';
 import { ExtensionContext, commands, window } from 'vscode';
 import { login, logout } from './controller/user';
 import { BookshelfProvider } from './provider/Bookshelf';
-import { ForbiddenError } from './error/forbidden';
+import { Book } from './model';
+import api from './api';
+import { next, prev, setBook } from './controller/book';
 
 const handleRejection: NodeJS.UnhandledRejectionListener = (reason, promise) => {
 	if (!(reason instanceof LegadoError)) {
 		return;
 	}
-	const handleError = (err: any) => {
-		if (err instanceof ForbiddenError) {
-			// 提示未登录
-			commands.executeCommand('setContext', 'legadoReader.isLogin', false);
-			return true;
-		}
-		return false;
-	};
 	promise.catch((err) => {
-		if (handleError(err)) {
-			return;
-		}
 		window.showErrorMessage(err.message);
-		log.append('Unhandled Rejection at:' + (err.stack || err) + '\n');
 	});
 };
 
@@ -45,6 +35,10 @@ export function activate(context: ExtensionContext) {
 
 	// 注册命令
 	context.subscriptions.push(
+		commands.registerCommand('legadoReader.connect', (uri) => {
+			commands.executeCommand('setContext', 'legadoReader.isLogin', true);
+			bookshelfProvider.refresh();
+		}),
 		commands.registerCommand('legadoReader.login', () => {
 			login().then(() => {
 				commands.executeCommand('setContext', 'legadoReader.isLogin', true);
@@ -55,6 +49,18 @@ export function activate(context: ExtensionContext) {
 			logout().then(() => {
 				commands.executeCommand('setContext', 'legadoReader.isLogin', false);
 			});
+		}),
+		commands.registerCommand('legadoReader.refresh', () => {
+			bookshelfProvider.refresh();
+		}),
+		commands.registerCommand('legadoReader.open', (book: Book) => {
+			setBook(book);
+		}),
+		commands.registerCommand('legadoReader.next', () => {
+			next();
+		}),
+		commands.registerCommand('legadoReader.prev', () => {
+			prev();
 		}),
 	);
 }

@@ -37,3 +37,13 @@ export interface Book {
     wordCount?: string;
     variable?: string;
 }
+
+export interface Chapter {
+    url: string;
+    title: string;
+    isVolume: boolean;
+    baseUrl: string;
+    bookUrl: string;
+    index: number;
+    tag?: string;
+}

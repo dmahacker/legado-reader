@@ -1,9 +1,10 @@
 import { ReaderResponse } from "./base";
-import { Book } from "./book";
+import { Book, Chapter } from "./book";
 import { User } from "./user";
 
 export {
     ReaderResponse,
     Book,
+    Chapter,
     User,
 };

@@ -53,7 +53,7 @@ export class BookshelfProvider implements TreeDataProvider<ShelfTreeItem> {
             const chapters = await api.listChapter(book.bookUrl);
             return chapters.map((chapter) => new ShelfTreeItem(chapter, {
                 command: {
-                    command: 'legadoReader.jumpTo',
+                    command: 'legadoReader.selectChapter',
                     title: '跳转到章节',
                     arguments: [chapter],
                 },

@@ -6,9 +6,8 @@ import { setStorage } from './storage';
 import { ExtensionContext, commands, window } from 'vscode';
 import { login, logout } from './controller/user';
 import { BookshelfProvider } from './provider/Bookshelf';
-import { Book } from './model';
-import api from './api';
-import { next, prev, save, setBook } from './controller/book';
+import { Book, Chapter } from './model';
+import { next, prev, save, setChapter, setBook } from './controller/book';
 
 const handleRejection: NodeJS.UnhandledRejectionListener = (reason, promise) => {
 	if (!(reason instanceof LegadoError)) {
@@ -55,6 +54,9 @@ export function activate(context: ExtensionContext) {
 		}),
 		commands.registerCommand('legadoReader.open', (book: Book) => {
 			setBook(book);
+		}),
+		commands.registerCommand('legadoReader.selectChapter', (chapter: Chapter) => {
+			setChapter(chapter);
 		}),
 		commands.registerCommand('legadoReader.next', () => {
 			next();

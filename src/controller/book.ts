@@ -1,5 +1,5 @@
 import { window } from "vscode";
-import { Book } from "../model";
+import { Book, Chapter } from "../model";
 import api from "../api";
 import { getData, setData } from "../storage";
 
@@ -144,10 +144,10 @@ export const prev = async () => {
 };
 
 export const show = async () => {
-    statusBar.text = `${line} (${book?.durChapterPos}/${chapter.length})`;
     if (!book) {
         return;
     }
+    statusBar.text = `${line} (${book.durChapterPos}/${chapter.length}[${book.durChapterTitle}]`;
     setData<Progress>(`progress:${book.bookUrl}`, {
         index: book.durChapterIndex,
         pos: book.durChapterPos,
@@ -159,5 +159,16 @@ export const save = async () => {
         return;
     }
     book.durChapterTime = new Date().getTime();
-    console.log(await api.saveProgress(book));
+    await api.saveProgress(book);
+};
+
+export const setChapter = async (chapter: Chapter) => {
+    if (!book) {
+        return;
+    }
+    book.durChapterIndex = chapter.index;
+    book.durChapterPos = 0;
+    book.durChapterTitle = chapter.title;
+    await frontRender();
+    await show();
 };

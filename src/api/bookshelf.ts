@@ -17,8 +17,17 @@ const getContent = async (url: string, index: number) => {
     return resp.data.data;
 };
 
+const saveProgress = async (book: Book) => {
+    const resp: AxiosResponse<ReaderResponse<any>> = await client.post('/saveBookProgress', {
+        index: book.durChapterIndex,
+        url: book.bookUrl,
+    });
+    return resp.data.data;
+};
+
 export default {
     listBookshelf,
     listChapter,
     getContent,
+    saveProgress,
 };

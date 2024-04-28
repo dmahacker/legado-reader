@@ -8,7 +8,7 @@ import { login, logout } from './controller/user';
 import { BookshelfProvider } from './provider/Bookshelf';
 import { Book } from './model';
 import api from './api';
-import { next, prev, setBook } from './controller/book';
+import { next, prev, save, setBook } from './controller/book';
 
 const handleRejection: NodeJS.UnhandledRejectionListener = (reason, promise) => {
 	if (!(reason instanceof LegadoError)) {
@@ -61,6 +61,9 @@ export function activate(context: ExtensionContext) {
 		}),
 		commands.registerCommand('legadoReader.prev', () => {
 			prev();
+		}),
+		commands.registerCommand('legadoReader.save', () => {
+			save();
 		}),
 	);
 }

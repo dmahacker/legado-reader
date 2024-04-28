@@ -28,17 +28,10 @@ vscode.workspace.onDidChangeConfiguration((event) => {
 client.interceptors.request.use((config) => {
     if (hasData('accessToken')) {
         const accessToken = getData<string>('accessToken')!;
-        if (["get", "delete", "head", "option"].includes(config.method ?? "")) {
-            const baseURL = config.baseURL!;
-            const url = new URL(baseURL + config.url);
-            url.searchParams.append('accessToken', accessToken);
-            config.url = url.toString().replace(baseURL, '');
-        }
-
-        if (["post", "put", "patch"].includes(config.method ?? "")) {
-            config.data = config.data || {};
-            config.data['accessToken'] = accessToken;
-        }
+        const baseURL = config.baseURL!;
+        const url = new URL(baseURL + config.url);
+        url.searchParams.append('accessToken', accessToken);
+        config.url = url.toString().replace(baseURL, '');
     }
     return config;
 });
